@@ -5,22 +5,31 @@
 Vagrant is used to allow users to quickly build / destroy and re-build environments with ease.  
 For more information on Vagrant please check out their [Vagrant website](https://www.vagrantup.com/)
 
-### Create/ Start environment
+#### Create/ Start environment
 
     $ vagrant up 
 
-### Destroy environment
+#### Destroy environment
 
     $ vagrant destroy
 
-### Restart environment 
+#### Restart environment 
  
     $ vagrant reload  
                                                                                                                                              
 ## Ansible
 
 Ansible will be used to automate environment provisioning and automate the build and deployment of your 
-JEE application.                                                                                                                                               
+JEE application.  
+
+### Prerequisites
+
+Download and copy oracle xe installation zip into /roles/oracle/files
+                                                                                                                                            
+#### Provisioning
+
+
+    $ ansible-playbook -i hosts --private-key .vagrant/machines/default/virtualbox/private_key site.yml                                                                                                                                             
                                                                                                                                      
 
 

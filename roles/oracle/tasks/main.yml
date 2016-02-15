@@ -1,0 +1,14 @@
+---
+- name: Ensure packages required are installed
+  yum: name={{item}} state=latest
+  with_items:
+    - libaio
+    - bc
+    - flex
+    - unzip
+
+- name: Unarchive Oracle rpm
+  unarchive: src=oracle-xe-11.2.0-1.0.x86_64.rpm.zip dest=/usr/share creates=/usr/share/Disk1
+
+- name: Install Oracle
+  shell: /bin/rpm -ivh /usr/share/Disk1/oracle-xe-11.2.0-1.0.x86_64.rpm creates=/u01
