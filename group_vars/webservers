@@ -1,0 +1,7 @@
+http_port: 8080
+https_port: 8443
+jboss_admin_port: 9990
+incoming_jboss_ports:
+   - { protocol: 'tcp', port: '9990' }
+   - { protocol: 'tcp', port: '8080' }
+   - { protocol: 'tcp', port: '8443' }

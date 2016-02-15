@@ -5,3 +5,10 @@
 
   roles:
     - oracle
+
+- hosts: webservers
+  remote_user: vagrant
+  sudo: true
+
+  roles:
+    - jboss

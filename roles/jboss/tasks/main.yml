@@ -1,0 +1,42 @@
+---
+- name: Install Java 1.8 and some basic dependencies
+  yum: name={{item}} state=present
+  with_items:
+    - java-1.8.0-openjdk
+
+- name: Download JBoss Wildfly 9
+  get_url: url=http://download.jboss.org/wildfly/9.0.2.Final/wildfly-9.0.2.Final.zip dest=/opt/wildfly-9.0.2.Final.zip
+
+- name: Unarchive into /usr/share
+  unarchive: src=/opt/wildfly-9.0.2.Final.zip dest=/usr/share copy=no
+
+# Rename the dir to avoid encoding the version in the init script
+- name: Rename install directory
+  command: chdir=/usr/share /bin/mv wildfly-9.0.2.Final jboss-as creates=/usr/share/jboss-as
+
+- name: Copying standalone.xml configuration file
+  template: src=standalone.xml dest=/usr/share/jboss-as/standalone/configuration/
+  notify: restart jboss
+
+- name: Add group "jboss"
+  group: name=jboss
+
+- name: Add user "jboss"
+  user: name=jboss group=jboss home=/usr/share/jboss-as
+
+- name: Change ownership of JBoss installation
+  file: path=/usr/share/jboss-as/ owner=jboss group=jboss state=directory recurse=yes
+
+- name: Copy the init script
+  copy: src=jboss-as-standalone.sh dest=/etc/init.d/jboss mode=0755
+
+- name: Enable JBoss to be started at boot
+  service: name=jboss enabled=yes state=started
+
+- name: Allow incoming connections for JBoss
+  lineinfile: dest=/etc/sysconfig/iptables
+              regexp="^-A INPUT -p {{ item.protocol }} -m {{ item.protocol }} --dport {{ item.port }} -j ACCEPT$"
+              line="-A INPUT -p {{ item.protocol }} -m {{ item.protocol }} --dport {{ item.port }} -j ACCEPT"
+              insertafter="^:OUTPUT ACCEPT \[0:0\]$"
+  with_items: "{{ incoming_jboss_ports }}"
+  notify: restart iptables
