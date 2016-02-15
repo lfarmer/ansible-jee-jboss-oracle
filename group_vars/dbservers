@@ -1,0 +1,5 @@
+oracle_http_port: 8181
+listener_port: 1521
+oracle_password: manager
+incoming_oracle_ports:
+   - { protocol: 'tcp', port: '1521' }

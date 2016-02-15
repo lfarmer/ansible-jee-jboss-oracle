@@ -12,3 +12,21 @@
 
 - name: Install Oracle
   shell: /bin/rpm -ivh /usr/share/Disk1/oracle-xe-11.2.0-1.0.x86_64.rpm creates=/u01
+
+- name: Copy oracle configuration
+  template: src=xe.j2 dest=/usr/share/xe.j2
+
+- name: Configure oracle
+  shell: /etc/init.d/oracle-xe configure responseFile=/usr/share/xe.j2
+  ignore_errors: yes
+
+- name: Setup oracle environment
+  shell: /bin/echo 'source /u01/app/oracle/product/11.2.0/xe/bin/oracle_env.sh' >> /home/vagrant/.bash_profile
+
+- name: Allow incoming connections for Oracle
+  lineinfile: dest=/etc/sysconfig/iptables
+              regexp="^-A INPUT -p {{ item.protocol }} -m {{ item.protocol }} --dport {{ item.port }} -j ACCEPT$"
+              line="-A INPUT -p {{ item.protocol }} -m {{ item.protocol }} --dport {{ item.port }} -j ACCEPT"
+              insertafter="^:OUTPUT ACCEPT \[0:0\]$"
+  with_items: "{{ incoming_oracle_ports }}"
+  notify: restart iptables
